@@ -27,7 +27,7 @@ def read_comments(post_id: int, db: Session = Depends(get_db)):
 @router.delete("/{comment_id}")
 def delete_comment(
     post_id: int,
-    comment: id,
+    comment_id: int,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -40,5 +40,5 @@ def delete_comment(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this comment")
     
     crud.delete_comment(db, comment_id)
-    return {"detail": "Commentr deleted successfully"}
+    return {"detail": "Comment deleted successfully"}
 

@@ -42,3 +42,24 @@ def delete_comment(
     crud.delete_comment(db, comment_id)
     return {"detail": "Comment deleted successfully"}
 
+
+@router.put("/{comment_id}", response_model=schemas.CommentOut)
+def update_comment(
+    post_id: int,
+    comment_id: int,
+    updated_comment: schemas.CommentCreate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    comment = db.query(models.Comment).filter(models.Comment.id == comment_id).first()
+    if comment is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found")
+
+    if comment.author_id != current_user.id and current_user.role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to update this comment")
+
+    comment.content = updated_comment.content
+    db.commit()
+    db.refresh(comment)
+    return comment
+
